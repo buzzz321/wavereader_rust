@@ -1,6 +1,5 @@
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
-
 #[derive(Debug, Copy, Clone)]
 struct Vertex {
     x: f32,
@@ -24,8 +23,8 @@ impl Model {
     }
 }
 
-fn main() -> std::io::Result<()> {
-    let file = File::open("kub.obj")?;
+fn read_obj(filename: &str) -> std::io::Result<Model> {
+    let file = File::open(filename)?;
 
     let buffer = BufReader::new(file);
     let mut vertices: Vec<Vertex> = Vec::new();
@@ -69,13 +68,23 @@ fn main() -> std::io::Result<()> {
 
                     index = parts[1].to_string().parse::<usize>().unwrap() - 1;
                     model.texture_vertices.push(texture_vertices[index]);
+                    model.faces.push(index as i64);
                 }
             }
             _ => (), //println!("{}", line),
         };
         // println!("{}", line);
     }
+    Ok(model)
+}
+
+fn main() -> std::io::Result<()> {
+    let model = read_obj("cylinder.obj")?;
     println!("Model = {:?}", model);
+
+    for index in model.faces {
+        println!("index {}", index);
+    }
 
     Ok(())
 }
